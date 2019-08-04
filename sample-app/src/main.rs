@@ -1,3 +1,6 @@
+use log4rs_cases::hello;
+
 fn main() {
-    println!("Hello, world!");
+    let greeting = hello("world");
+    println!("{}", greeting);
 }
