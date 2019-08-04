@@ -5,7 +5,9 @@ edition = "2018"
 repository = "https://github.com/x7c1/log4rs-cases"
 description = "Modules to use log4rs easily"
 license = "MIT/Apache-2.0"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 
 [dependencies]
