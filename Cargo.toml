@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "log4rs-cases",
+    "sample-app",
+]
