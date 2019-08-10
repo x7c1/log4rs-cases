@@ -14,7 +14,7 @@ pub struct Setting {
     pub appender_name: String,
     pub file_pattern: String,
     pub file_path: String,
-    pub log_level: String,
+    pub log_level: Level,
     pub limit_size_kb: u64,
     pub limit_file_count: u32,
 }
@@ -55,7 +55,7 @@ impl Setting {
         CompoundPolicy::new(Box::new(trigger), Box::new(roller))
     }
     fn get_level_filter(&self) -> CasesResult<LevelFilter> {
-        let filter = Level::from_str(&self.log_level)?.to_level_filter();
+        let filter = self.log_level.to_level_filter();
         Ok(filter)
     }
 }
@@ -131,8 +131,7 @@ impl SettingBuilder<Filled, Filled> {
             appender_name: self.appender_name.unwrap_or("default".to_string()),
             file_pattern: self.file_pattern.unwrap(),
             file_path: self.file_path.unwrap(),
-            //            log_level: self.optional.log_level.unwrap_or(Level::Debug),
-            log_level: "debug".to_string(),
+            log_level: self.log_level.unwrap_or(Level::Debug),
             limit_size_kb: self.limit_size_kb.unwrap_or(1000),
             limit_file_count: self.limit_file_count.unwrap_or(3),
         }
@@ -140,17 +139,18 @@ impl SettingBuilder<Filled, Filled> {
 }
 
 impl<Pattern, Path> SettingBuilder<Pattern, Path> {
-    pub fn log_level(&mut self, level: Level) -> &Self {
-        self.log_level = Some(level);
-        self
+    pub fn log_level<A: Into<String>>(mut self, level: A) -> CasesResult<Self> {
+        let log_level = Level::from_str(level.into().as_str())?;
+        self.log_level = Some(log_level);
+        Ok(self)
     }
 
-    pub fn limit_size_kb(&mut self, size_kb: u64) -> &Self {
+    pub fn limit_size_kb(mut self, size_kb: u64) -> Self {
         self.limit_size_kb = Some(size_kb);
         self
     }
 
-    pub fn limit_file_count(&mut self, count: u32) -> &Self {
+    pub fn limit_file_count(mut self, count: u32) -> Self {
         self.limit_file_count = Some(count);
         self
     }
