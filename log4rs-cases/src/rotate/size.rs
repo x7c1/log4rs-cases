@@ -59,3 +59,99 @@ impl Setting {
         Ok(filter)
     }
 }
+
+use std::marker::PhantomData;
+pub struct Empty;
+pub struct Filled;
+
+/// see also:
+///
+/// * https://github.com/rust-unofficial/patterns/blob/master/patterns/builder.md
+/// * https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
+/// * https://keens.github.io/blog/2017/02/09/rustnochottoyarisuginabuilderpata_n/
+pub struct SettingBuilder<Pattern, Path> {
+    file_pattern: Option<String>,
+    file_pattern_state: PhantomData<Pattern>,
+    file_path: Option<String>,
+    file_path_state: PhantomData<Path>,
+    appender_name: Option<String>,
+    log_level: Option<Level>,
+    limit_size_kb: Option<u64>,
+    limit_file_count: Option<u32>,
+}
+
+impl SettingBuilder<Empty, Empty> {
+    pub fn new() -> Self {
+        SettingBuilder {
+            file_pattern: None,
+            file_pattern_state: PhantomData,
+            file_path: None,
+            file_path_state: PhantomData,
+            appender_name: None,
+            log_level: None,
+            limit_size_kb: None,
+            limit_file_count: None,
+        }
+    }
+}
+
+impl<Pattern> SettingBuilder<Pattern, Empty> {
+    pub fn file_path<A: Into<String>>(self, path: A) -> SettingBuilder<Pattern, Filled> {
+        SettingBuilder {
+            file_pattern: self.file_pattern,
+            file_pattern_state: self.file_pattern_state,
+            file_path: Some(path.into()),
+            file_path_state: PhantomData,
+            appender_name: self.appender_name,
+            log_level: self.log_level,
+            limit_size_kb: self.limit_size_kb,
+            limit_file_count: self.limit_file_count,
+        }
+    }
+}
+
+impl<Path> SettingBuilder<Empty, Path> {
+    pub fn file_pattern<A: Into<String>>(self, pattern: A) -> SettingBuilder<Filled, Path> {
+        SettingBuilder {
+            file_pattern: Some(pattern.into()),
+            file_pattern_state: PhantomData,
+            file_path: self.file_path,
+            file_path_state: self.file_path_state,
+            appender_name: self.appender_name,
+            log_level: self.log_level,
+            limit_size_kb: self.limit_size_kb,
+            limit_file_count: self.limit_file_count,
+        }
+    }
+}
+
+impl SettingBuilder<Filled, Filled> {
+    pub fn build(self) -> Setting {
+        Setting {
+            appender_name: self.appender_name.unwrap_or("default".to_string()),
+            file_pattern: self.file_pattern.unwrap(),
+            file_path: self.file_path.unwrap(),
+            //            log_level: self.optional.log_level.unwrap_or(Level::Debug),
+            log_level: "debug".to_string(),
+            limit_size_kb: self.limit_size_kb.unwrap_or(1000),
+            limit_file_count: self.limit_file_count.unwrap_or(3),
+        }
+    }
+}
+
+impl<Pattern, Path> SettingBuilder<Pattern, Path> {
+    pub fn log_level(&mut self, level: Level) -> &Self {
+        self.log_level = Some(level);
+        self
+    }
+
+    pub fn limit_size_kb(&mut self, size_kb: u64) -> &Self {
+        self.limit_size_kb = Some(size_kb);
+        self
+    }
+
+    pub fn limit_file_count(&mut self, count: u32) -> &Self {
+        self.limit_file_count = Some(count);
+        self
+    }
+}

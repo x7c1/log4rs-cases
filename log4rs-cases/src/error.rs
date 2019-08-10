@@ -15,12 +15,6 @@ pub enum Error {
 
     #[fail(display = "log::ParseLevelError: RUST_LOG invalid?")]
     LogParseLevelError(log::ParseLevelError),
-
-//    #[fail(display = "std::env::VarError")]
-//    EnvVarError {
-//        cause: std::env::VarError,
-//        name: String,
-//    },
 }
 
 impl From<std::io::Error> for Error {
