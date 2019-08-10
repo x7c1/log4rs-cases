@@ -1,3 +1,10 @@
+#[macro_use]
+extern crate failure;
+
+mod error;
+pub mod rotate;
+pub use crate::error::Result as CasesResult;
+
 pub fn hello(name: &str) -> String {
     format!("hello, {}!", name)
 }
@@ -6,6 +13,6 @@ pub fn hello(name: &str) -> String {
 mod tests {
     #[test]
     fn it_works() {
-        assert_eq!(hello("world"), "hello, world!");
+        assert_eq!(crate::hello("world"), "hello, world!");
     }
 }
