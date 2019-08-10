@@ -3,11 +3,11 @@ extern crate log;
 
 use log4rs_cases::hello;
 use log4rs_cases::CasesResult;
-use log4rs_cases::rotate::Setting;
+use log4rs_cases::rotate::size::Setting;
 use log4rs::config::Config;
 
 fn main() {
-    let config = setup().unwrap();
+    let config = create_config().unwrap();
     log4rs::init_config(config).unwrap();
 
     let greeting = hello("world");
@@ -15,7 +15,7 @@ fn main() {
     info!("info: {}", greeting);
 }
 
-pub fn setup() -> CasesResult<Config> {
+pub fn create_config() -> CasesResult<Config> {
     let log_dir = "./sample";
     let setting = Setting {
         appender_name: "sample_log_appender".to_string(),
