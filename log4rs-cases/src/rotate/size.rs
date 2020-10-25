@@ -42,7 +42,8 @@ impl Setting {
     fn create_rolling_file_appender(&self) -> CasesResult<RollingFileAppender> {
         let appender = RollingFileAppender::builder()
             .encoder(Box::new(PatternEncoder::new("{d} [{l}] {M} {m}{n}")))
-            .build(&self.file_path, Box::new(self.create_policy()))?;
+            .build(&self.file_path, Box::new(self.create_policy()))
+            .map_err(FailedToCreateAppender)?;
 
         Ok(appender)
     }
@@ -60,8 +61,11 @@ impl Setting {
     }
 }
 
+use crate::error::Error::FailedToCreateAppender;
 use std::marker::PhantomData;
+
 pub struct Empty;
+
 pub struct Filled;
 
 /// see also:

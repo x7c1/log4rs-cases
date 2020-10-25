@@ -2,16 +2,10 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
-    StdIoError(std::io::Error),
+    FailedToCreateAppender(std::io::Error),
     Log4rsErrors(log4rs::config::Errors),
     LogError(log::SetLoggerError),
     LogParseLevelError(log::ParseLevelError),
-}
-
-impl From<std::io::Error> for Error {
-    fn from(e: std::io::Error) -> Self {
-        Error::StdIoError(e)
-    }
 }
 
 impl From<log4rs::config::Errors> for Error {
