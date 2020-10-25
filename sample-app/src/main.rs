@@ -2,9 +2,9 @@
 extern crate log;
 
 use log4rs::config::Config;
+use log4rs_cases;
 use log4rs_cases::hello;
 use log4rs_cases::rotate;
-use log4rs_cases::CasesResult;
 
 fn main() {
     let config = create_config().unwrap();
@@ -18,7 +18,7 @@ fn main() {
     error!("error: {}", greeting);
 }
 
-pub fn create_config() -> CasesResult<Config> {
+pub fn create_config() -> log4rs_cases::Result<Config> {
     let setting = rotate::size::SettingBuilder::new()
         .file_path("sample/sample.log")
         .file_pattern("backup/sample.{}.log")

@@ -1,6 +1,6 @@
 mod error;
 pub mod rotate;
-pub use crate::error::Result as CasesResult;
+pub use crate::error::Result;
 
 pub fn hello(name: &str) -> String {
     format!("hello, {}!", name)
