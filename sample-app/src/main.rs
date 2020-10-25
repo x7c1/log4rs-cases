@@ -3,14 +3,13 @@ extern crate log;
 
 use log4rs::config::Config;
 use log4rs_cases;
-use log4rs_cases::hello;
 use log4rs_cases::rotate;
 
 fn main() {
     let config = create_config().unwrap();
     log4rs::init_config(config).unwrap();
 
-    let greeting = hello("world");
+    let greeting = "hello, world!";
     println!("{}", greeting);
     debug!("debug: {}", greeting);
     info!("info: {}", greeting);
