@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate failure;
-
 mod error;
 pub mod rotate;
 pub use crate::error::Result as CasesResult;
