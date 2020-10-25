@@ -138,7 +138,7 @@ impl<Path> SettingBuilder<Empty, Path> {
 impl SettingBuilder<Filled, Filled> {
     pub fn build(self) -> Setting {
         Setting {
-            appender_name: self.appender_name.unwrap_or_else(||"default".to_string()),
+            appender_name: self.appender_name.unwrap_or_else(|| "default".to_string()),
             file_pattern: self.file_pattern.unwrap(),
             file_path: self.file_path.unwrap(),
             log_level: self.log_level.unwrap_or(Level::Debug),
