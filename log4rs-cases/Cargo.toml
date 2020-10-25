@@ -12,4 +12,4 @@ readme = "README.md"
 
 [dependencies]
 log = "0.4.*"
-log4rs = "0.8.*"
+log4rs = "0.13.*"
