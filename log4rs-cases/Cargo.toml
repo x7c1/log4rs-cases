@@ -1,6 +1,6 @@
 [package]
 name = "log4rs-cases"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["haco <jmtaro+crates@gmail.com>"]
 edition = "2018"
 repository = "https://github.com/x7c1/log4rs-cases"
