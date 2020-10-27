@@ -1,26 +1,11 @@
-extern crate failure;
-
 pub type Result<T> = ::std::result::Result<T, Error>;
 
-#[derive(Fail, Debug)]
+#[derive(Debug)]
 pub enum Error {
-    #[fail(display = "std::io error")]
-    StdIoError(std::io::Error),
-
-    #[fail(display = "log4rs::config::Errors")]
+    FailedToCreateAppender(std::io::Error),
     Log4rsErrors(log4rs::config::Errors),
-
-    #[fail(display = "log::SetLoggerError")]
     LogError(log::SetLoggerError),
-
-    #[fail(display = "log::ParseLevelError: RUST_LOG invalid?")]
     LogParseLevelError(log::ParseLevelError),
-}
-
-impl From<std::io::Error> for Error {
-    fn from(e: std::io::Error) -> Self {
-        Error::StdIoError(e)
-    }
 }
 
 impl From<log4rs::config::Errors> for Error {

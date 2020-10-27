@@ -8,8 +8,6 @@ use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
 
-use crate::CasesResult;
-
 pub struct Setting {
     pub appender_name: String,
     pub file_pattern: String,
@@ -20,29 +18,30 @@ pub struct Setting {
 }
 
 impl Setting {
-    pub fn configure(&self) -> CasesResult<Config> {
+    pub fn configure(&self) -> crate::Result<Config> {
         let config = Config::builder()
             .appender(self.create_appender()?)
             .build(self.create_root()?)?;
 
         Ok(config)
     }
-    fn create_appender(&self) -> CasesResult<Appender> {
+    fn create_appender(&self) -> crate::Result<Appender> {
         let file_appender = Box::new(self.create_rolling_file_appender()?);
         let appender = Appender::builder().build(self.appender_name.as_str(), file_appender);
         Ok(appender)
     }
-    fn create_root(&self) -> CasesResult<Root> {
+    fn create_root(&self) -> crate::Result<Root> {
         let root = Root::builder()
             .appender(self.appender_name.as_str())
             .build(self.get_level_filter()?);
 
         Ok(root)
     }
-    fn create_rolling_file_appender(&self) -> CasesResult<RollingFileAppender> {
+    fn create_rolling_file_appender(&self) -> crate::Result<RollingFileAppender> {
         let appender = RollingFileAppender::builder()
             .encoder(Box::new(PatternEncoder::new("{d} [{l}] {M} {m}{n}")))
-            .build(&self.file_path, Box::new(self.create_policy()))?;
+            .build(&self.file_path, Box::new(self.create_policy()))
+            .map_err(FailedToCreateAppender)?;
 
         Ok(appender)
     }
@@ -54,14 +53,17 @@ impl Setting {
 
         CompoundPolicy::new(Box::new(trigger), Box::new(roller))
     }
-    fn get_level_filter(&self) -> CasesResult<LevelFilter> {
+    fn get_level_filter(&self) -> crate::Result<LevelFilter> {
         let filter = self.log_level.to_level_filter();
         Ok(filter)
     }
 }
 
+use crate::error::Error::FailedToCreateAppender;
 use std::marker::PhantomData;
+
 pub struct Empty;
+
 pub struct Filled;
 
 /// see also:
@@ -78,6 +80,12 @@ pub struct SettingBuilder<Pattern, Path> {
     log_level: Option<Level>,
     limit_size_kb: Option<u64>,
     limit_file_count: Option<u32>,
+}
+
+impl Default for SettingBuilder<Empty, Empty> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SettingBuilder<Empty, Empty> {
@@ -128,7 +136,7 @@ impl<Path> SettingBuilder<Empty, Path> {
 impl SettingBuilder<Filled, Filled> {
     pub fn build(self) -> Setting {
         Setting {
-            appender_name: self.appender_name.unwrap_or("default".to_string()),
+            appender_name: self.appender_name.unwrap_or_else(|| "default".to_string()),
             file_pattern: self.file_pattern.unwrap(),
             file_path: self.file_path.unwrap(),
             log_level: self.log_level.unwrap_or(Level::Debug),
@@ -139,7 +147,7 @@ impl SettingBuilder<Filled, Filled> {
 }
 
 impl<Pattern, Path> SettingBuilder<Pattern, Path> {
-    pub fn log_level<A: Into<String>>(mut self, level: A) -> CasesResult<Self> {
+    pub fn log_level<A: Into<String>>(mut self, level: A) -> crate::Result<Self> {
         let log_level = Level::from_str(level.into().as_str())?;
         self.log_level = Some(log_level);
         Ok(self)
